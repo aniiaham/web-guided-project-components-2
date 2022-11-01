@@ -1,6 +1,8 @@
 // Imports at the top of the file!
 // We never nest imports inside blocks of code!
 
+import { breeds } from "./breeds"
+
 
 // 👉 TASK 1- Test out the following endpoints:
 
@@ -19,7 +21,7 @@
 
 // 👉 TASK 2- Select the "entry point", the element
 // inside of which we'll inject our dog cards 
-const entryPoint = null
+const entryPoint = document.querySelector('.entry')
 
 
 // 👉 TASK 3- `dogCardMaker` takes an object and returns a Dog Card.
@@ -31,7 +33,7 @@ function dogCardMaker({ imageURL, breed }) {
   const heading = document.createElement('h3')
   // setting class names, attributes and text
   heading.textContent = `Breed: ${breed}`
-  image.src = imageURL
+  image.src = imageURL  
   image.classList.add('dog-image')
   dogCard.classList.add('dog-card')
   // creating the hierarchy
@@ -55,15 +57,60 @@ function dogCardMaker({ imageURL, breed }) {
 //    * ON SUCCESS: use the data to create dogCards and append them to the entry point
 //    * ON FAILURE: log the error to the console
 //    * IN ANY CASE: log "done" to the console
+// axios.get('https://dog.ceo/api/breed/bluetick/images/random/1')
+//   .then(response => {
+//     // console.log(response);
+//     const breed = 'bluetick';
+//     const imageURL = response.data.message[0]
+//     const dogCard = dogCardMaker({breed, imageURL})
+//     // console.log(dogCard)
+//     entryPoint.appendChild(dogCard);  
+//   })
+//   .catch(err => {
+//     // console.log(err);
+//   })
+//   .finally()
 
 
 // 👉 (OPTIONAL) TASK 6- Wrap the fetching operation inside a function `getDogs`
 // that takes a breed and a count (of dogs)
-
-
+function getDogs(breed, number){
+  axios.get(`https://dog.ceo/api/breed/${breed}/images/random/${number}`)
+  .then(response => {
+    response.data.message.forEach(imageURL =>{
+      const dogCard = dogCardMaker({breed, imageURL})
+      // console.log(dogCard)
+      entryPoint.appendChild(dogCard);  
+    })
+    // console.log(response);  
+  })
+  .catch(err => {
+    console.error(err);
+  })
+}
 // 👉 (OPTIONAL) TASK 7- Put a button in index.html to 'get dogs' and add a click
 // event listener that executes `getDogs`
-
+const btn = document.querySelector('.get-dog');
+btn.addEventListener('click', event =>{
+  const num = document.querySelector('.num-dog').value
+  entryPoint.innerHTML = "";
+  console.log(num);
+  if (num > 0 ){
+  const dogs = axios.get('https://lambda-times-api.herokuapp.com/breeds')
+  .then(response => {
+    response.data.forEach(breed =>{
+      getDogs(breed, num);
+    // console.log(response);
+    })
+  }) .catch(err => console.error(err))
+    } else {
+      const error = document.createElement('h3');
+      error.textContent = 'You have gotta enter a number greater than 0!';
+      entryPoint.appendChild(error);  
+    }
+  })
+  // console.log('CLICKED'); 
+// console.log(breeds);
 
 // 👉 (OPTIONAL) TASK 8- Import the breeds from `breeds.js`
 // or request them from https://lambda-times-api.herokuapp.com/breeds
